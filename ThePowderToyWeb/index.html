@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Powder Toy Web</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+        #canvas {
+            border: 2px solid #333;
+            max-width: 100%;
+            max-height: 80vh;
+            image-rendering: pixelated;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <div class="controls">
+        <p>The Powder Toy - Web Version (✨ 화학 공정 모드 자동 적용됨)</p>
+    </div>
+
+    <script src="powder_kokr.js"></script>
+    <script>
+        // TPT가 시작될 때 자동으로 실행할 Lua 스크립트
+        var luaCode = `
+-- 1. UI: Hide unnecessary categories (values from MenuSection.h)
+-- SC_EXPLOSIVE=5, SC_NUCLEAR=10, SC_SPECIAL=11, SC_LIFE=12
+local function h(c)
+  for i=1,255 do
+    if tpt.get_property("menusection",i)==c then
+      tpt.set_property("menusection",i,16)
+    end
+  end
+end
+h(5) h(10) h(11) h(12)
+
+-- 2. Register custom elements
+local e=TPT.element
+local c1=e.allocate("CHEM","CH4")
+local c2=e.allocate("CHEM","CO")
+local c3=e.allocate("CHEM","H2")
+local c4=e.allocate("CHEM","NI")
+
+-- 3. Element properties
+e.element_set_property(c1,"Name","CH4")
+e.element_set_property(c1,"Description","Methane. Key feedstock for SMR.")
+e.element_set_property(c1,"Color",0x90EE90)
+e.element_set_property(c1,"Properties",e.TYPE_GAS)
+e.element_set_property(c1,"Weight",16)
+e.element_set_property(c1,"MenuSection",11)
+
+e.element_set_property(c2,"Name","CO")
+e.element_set_property(c2,"Description","Carbon Monoxide. SMR product.")
+e.element_set_property(c2,"Color",0x6464FF)
+e.element_set_property(c2,"Properties",e.TYPE_GAS)
+e.element_set_property(c2,"Weight",28)
+e.element_set_property(c2,"MenuSection",11)
+
+e.element_set_property(c3,"Name","H2")
+e.element_set_property(c3,"Description","Hydrogen. Highly flammable.")
+e.element_set_property(c3,"Color",0xFFC8FF)
+e.element_set_property(c3,"Properties",e.TYPE_GAS)
+e.element_set_property(c3,"Weight",2)
+e.element_set_property(c3,"Flammable",100)
+e.element_set_property(c3,"MenuSection",11)
+
+e.element_set_property(c4,"Name","NI")
+e.element_set_property(c4,"Description","Nickel catalyst for SMR.")
+e.element_set_property(c4,"Color",0xC0C0C0)
+e.element_set_property(c4,"Properties",e.TYPE_SOLID)
+e.element_set_property(c4,"HeatConduct",251)
+e.element_set_property(c4,"MenuSection",11)
+
+-- 4. CH4 reactions
+-- 4a. SMR: CH4 + H2O -> CO + 3H2 (T>973, Ni catalyst, endothermic)
+-- 4b. Pyrolysis: CH4 -> C + 2H2 (T>800, no catalyst needed)
+e.property_set_func(c1, function(i,x,y,s,n)
+  local t=sim.partProperty(i,"temp")
+  -- SMR: check for adjacent steam (T>973)
+  if t>973 then
+    for dx=-1,1 do
+      for dy=-1,1 do
+        if not(dx==0 and dy==0) then
+          local rid=sim.partID(x+dx,y+dy)
+          if rid then
+            local rt=sim.partProperty(rid,"type")
+            if rt==e.DEFAULT_PT_WTRV then
+              local hasNi=false
+              for cx=-2,2 do
+                for cy=-2,2 do
+                  if not(cx==0 and cy==0) then
+                    local nid=sim.partID(x+cx,y+cy)
+                    if nid and sim.partProperty(nid,"type")==c4 then
+                      hasNi=true break
+                    end
+                  end
+                end
+                if hasNi then break end
+              end
+              if hasNi or math.random()<0.02 then
+                sim.partProperty(i,"type",c2)
+                sim.partProperty(rid,"type",c3)
+                sim.partProperty(i,"temp",t-100)
+                return
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  -- Pyrolysis: CH4 -> C(BCOL) + 2H2 (T>800, 2% chance)
+  if t>800 and math.random()<0.02 then
+    sim.partProperty(i,"type",e.DEFAULT_PT_BCOL)
+    sim.partCreate(-1,x+math.random(-1,1),y+math.random(-1,1),c3)
+    sim.partCreate(-1,x+math.random(-1,1),y+math.random(-1,1),c3)
+    sim.partProperty(i,"temp",t-50)
+    return
+  end
+end)
+
+-- 5. COAL/BCOL burning (ref: COAL.cpp + FIRE.cpp)
+-- DefaultProperties: life=110(unlit), tmp=50(fuel)
+-- Ignition: FIRE/PLSM 2칸내 + life>100 -> 1/500 chance -> life=99
+-- Burning: life<100 -> life--, spawn FIRE nearby
+-- Burnout: life<=0 -> become FIRE
+-- Pressure: pv>4.3 & tmp>40 -> tmp=39; tmp-- -> tmp<=0 -> BCOL
+local COAL_ID=e.DEFAULT_PT_COAL
+local BCOL_ID=e.DEFAULT_PT_BCOL
+local FIRE_ID=e.DEFAULT_PT_FIRE
+local PLSM_ID=e.DEFAULT_PT_PLSM
+
+local function coal_update(i,x,y,s,n)
+  local life=sim.partProperty(i,"life")
+  local typ=sim.partProperty(i,"type")
+  if life<=0 then
+    sim.partCreate(i,x,y,FIRE_ID)
+    return 1
+  elseif life<100 then
+    sim.partProperty(i,"life",life-1)
+    sim.partCreate(-1,x+math.random(-1,1),y+math.random(-1,1),FIRE_ID)
+  end
+  if life>100 then
+    local ignited=false
+    for dx=-2,2 do
+      for dy=-2,2 do
+        if not(dx==0 and dy==0) then
+          local rid=sim.partID(x+dx,y+dy)
+          if rid then
+            local rt=sim.partProperty(rid,"type")
+            if (rt==FIRE_ID or rt==PLSM_ID) and math.random()<0.002 then
+              sim.partProperty(i,"life",99)
+              ignited=true break
+            end
+          end
+        end
+      end
+      if ignited then break end
+    end
+  end
+  if typ==COAL_ID then
+    local tmp=sim.partProperty(i,"tmp")
+    local pres=sim.pressure(math.floor(x/4),math.floor(y/4))
+    if pres>4.3 and tmp>40 then
+      sim.partProperty(i,"tmp",39)
+    elseif tmp<40 and tmp>0 then
+      sim.partProperty(i,"tmp",tmp-1)
+    elseif tmp<=0 then
+      sim.partProperty(i,"type",BCOL_ID)
+      return 1
+    end
+  end
+  local temp=sim.partProperty(i,"temp")
+  local tmp2=sim.partProperty(i,"tmp2")
+  if temp>tmp2 then
+    sim.partProperty(i,"tmp2",math.floor(temp))
+  end
+  return 0
+end
+e.property(COAL_ID,"Update",coal_update,1)
+e.property(BCOL_ID,"Update",coal_update,1)
+
+print("Chemistry Mod Loaded!")
+`;
+
+        var Module = {
+            canvas: (function() {
+                var canvas = document.getElementById('canvas');
+                return canvas;
+            })(),
+            print: function(text) { console.log(text); },
+            printErr: function(text) { console.error(text); },
+            setStatus: function(text) { console.log("Status: " + text); },
+            
+            // 핵심: 엔진이 시작되기 직전(preRun)에 가상 파일시스템에 autorun.lua를 생성
+            preRun: [function() {
+                try {
+                    FS.writeFile('/autorun.lua', luaCode);
+                    console.log("autorun.lua 가상 파일 생성 완료. 엔진이 이를 읽어 자동 실행합니다.");
+                } catch(e) {
+                    console.error("autorun.lua 생성 실패:", e);
+                }
+            }]
+        };
+
+        create_powder_kokr(Module).then(function(instance) {
+            console.log("The Powder Toy (KO) has been initialized.");
+        }).catch(function(err) {
+            console.error("Failed to initialize The Powder Toy:", err);
+        });
+    </script>
+</body>
+</html>

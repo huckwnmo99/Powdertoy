@@ -1,0 +1,7 @@
+ref/
+.claude/
+*.pyc
+__pycache__/
+serve-wasm.key.pem
+serve-wasm.cert.crt
+serve-wasm.index.html
