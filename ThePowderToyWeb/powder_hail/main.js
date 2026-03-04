@@ -2,35 +2,35 @@
 
 // --- 요소 정의 (TPT 기반 속성 추가: 상변화, 수명, 점도) ---
 const ELEMENTS = {
-    EMPTY:   { id: 0, name: '지우개', color: [0, 0, 0, 255], state: 'gas', weight: 0, conduct: 0 },
-    WALL:    { id: 1, name: '벽', color: [128, 128, 128, 255], state: 'solid', weight: 100, conduct: 0 },
-    SAND:    { id: 2, name: '모래', color: [194, 178, 128, 255], state: 'powder', weight: 90, conduct: 50, highTemp: 1700, highTransition: 23 }, // 1700도에서 유리(23)로 변함
-    WATER:   { id: 3, name: '물(H2O)', color: [30, 144, 255, 255], state: 'liquid', weight: 30, conduct: 118, highTemp: 100, highTransition: 5, lowTemp: 0, lowTransition: 19, dispersion: 5 }, // 빠르게 퍼짐
-    FIRE:    { id: 4, name: '열/불', color: [255, 69, 0, 255], state: 'gas', weight: -1, conduct: 88, defaultLife: 40 }, // 수명 40틱, gas로 변경하여 위로 솟게 함
-    STEAM:   { id: 5, name: '수증기', color: [220, 220, 220, 150], state: 'gas', weight: -1, conduct: 20, lowTemp: 100, lowTransition: 3 }, // 식으면 물로 응결
-    METHANE: { id: 6, name: '메테인(CH4)', color: [144, 238, 144, 150], state: 'gas', weight: -2, conduct: 24 },
-    COAL:    { id: 7, name: '석탄(C)', color: [30, 30, 30, 255], state: 'powder', weight: 95, conduct: 20 },
-    O2:      { id: 8, name: '산소(O2)', color: [100, 255, 100, 100], state: 'gas', weight: 0, conduct: 24 },
-    CO2:     { id: 9, name: '이산화탄소', color: [150, 75, 0, 150], state: 'gas', weight: 5, conduct: 24 },
-    CO:      { id: 10, name: '일산화탄소', color: [100, 100, 255, 150], state: 'gas', weight: 0, conduct: 24 },
-    H2:      { id: 11, name: '수소(H2)', color: [255, 200, 255, 100], state: 'gas', weight: -5, conduct: 24 },
-    NI:      { id: 12, name: '니켈(Ni)', color: [192, 192, 192, 255], state: 'solid', weight: 100, conduct: 150, highTemp: 1455, highTransition: 22 }, // 용암으로 녹음
-    OIL:     { id: 13, name: '원유(Oil)', color: [50, 20, 0, 255], state: 'liquid', weight: 20, conduct: 40, highTemp: 350, highTransition: 14, dispersion: 2 }, // 350도에서 경질가스로 끓음 (정유)
-    LIGHT_GAS: { id: 14, name: '경질가스', color: [200, 255, 200, 120], state: 'gas', weight: -3, conduct: 24 },
-    IRON:    { id: 15, name: '철(Fe)', color: [120, 120, 130, 255], state: 'solid', weight: 100, conduct: 180, highTemp: 1538, highTransition: 22 },
-    COPPER:  { id: 16, name: '구리(Cu)', color: [184, 115, 51, 255], state: 'solid', weight: 100, conduct: 255, highTemp: 1085, highTransition: 22 },
-    PLATINUM:{ id: 17, name: '백금(Pt)', color: [229, 228, 226, 255], state: 'solid', weight: 100, conduct: 50, highTemp: 1768, highTransition: 22 },
-    C_STEEL: { id: 18, name: '카본스틸', color: [70, 75, 80, 255], state: 'solid', weight: 100, conduct: 140, highTemp: 1400, highTransition: 22 },
-    
+    EMPTY:   { id: 0, name: '지우개', color: [0, 0, 0, 255], state: 'gas', weight: 0, conduct: 0, heatCapacity: 1.0 },
+    WALL:    { id: 1, name: '벽', color: [128, 128, 128, 255], state: 'solid', weight: 100, conduct: 0, heatCapacity: 1.0 },
+    SAND:    { id: 2, name: '모래', color: [194, 178, 128, 255], state: 'powder', weight: 90, conduct: 50, heatCapacity: 0.8, highTemp: 1700, highTransition: 23 },
+    WATER:   { id: 3, name: '물(H2O)', color: [30, 144, 255, 255], state: 'liquid', weight: 30, conduct: 118, heatCapacity: 4.18, highTemp: 100, highTransition: 5, lowTemp: 0, lowTransition: 19, dispersion: 5 },
+    FIRE:    { id: 4, name: '열/불', color: [255, 69, 0, 255], state: 'gas', weight: -1, conduct: 88, heatCapacity: 1.0, defaultLife: 40 },
+    STEAM:   { id: 5, name: '수증기', color: [220, 220, 220, 150], state: 'gas', weight: -1, conduct: 20, heatCapacity: 2.0, lowTemp: 100, lowTransition: 3 },
+    METHANE: { id: 6, name: '메테인(CH4)', color: [144, 238, 144, 150], state: 'gas', weight: -2, conduct: 24, heatCapacity: 2.2 },
+    COAL:    { id: 7, name: '석탄(C)', color: [30, 30, 30, 255], state: 'powder', weight: 95, conduct: 20, heatCapacity: 1.0 },
+    O2:      { id: 8, name: '산소(O2)', color: [100, 255, 100, 100], state: 'gas', weight: 0, conduct: 24, heatCapacity: 0.92 },
+    CO2:     { id: 9, name: '이산화탄소', color: [150, 75, 0, 150], state: 'gas', weight: 5, conduct: 24, heatCapacity: 0.84 },
+    CO:      { id: 10, name: '일산화탄소', color: [100, 100, 255, 150], state: 'gas', weight: 0, conduct: 24, heatCapacity: 1.04 },
+    H2:      { id: 11, name: '수소(H2)', color: [255, 200, 255, 100], state: 'gas', weight: -5, conduct: 24, heatCapacity: 14.3 },
+    NI:      { id: 12, name: '니켈(Ni)', color: [192, 192, 192, 255], state: 'solid', weight: 100, conduct: 150, heatCapacity: 0.44, highTemp: 1455, highTransition: 22 },
+    OIL:     { id: 13, name: '원유(Oil)', color: [50, 20, 0, 255], state: 'liquid', weight: 20, conduct: 40, heatCapacity: 2.0, highTemp: 350, highTransition: 14, dispersion: 2 },
+    LIGHT_GAS: { id: 14, name: '경질가스', color: [200, 255, 200, 120], state: 'gas', weight: -3, conduct: 24, heatCapacity: 1.0 },
+    IRON:    { id: 15, name: '철(Fe)', color: [120, 120, 130, 255], state: 'solid', weight: 100, conduct: 180, heatCapacity: 0.45, highTemp: 1538, highTransition: 22 },
+    COPPER:  { id: 16, name: '구리(Cu)', color: [184, 115, 51, 255], state: 'solid', weight: 100, conduct: 255, heatCapacity: 0.39, highTemp: 1085, highTransition: 22 },
+    PLATINUM:{ id: 17, name: '백금(Pt)', color: [229, 228, 226, 255], state: 'solid', weight: 100, conduct: 50, heatCapacity: 0.13, highTemp: 1768, highTransition: 22 },
+    C_STEEL: { id: 18, name: '카본스틸', color: [70, 75, 80, 255], state: 'solid', weight: 100, conduct: 140, heatCapacity: 0.50, highTemp: 1400, highTransition: 22 },
+
     // 신규 추가 요소
-    ICE:     { id: 19, name: '얼음', color: [200, 200, 255, 255], state: 'powder', weight: 25, conduct: 118, highTemp: 0, highTransition: 3 },
-    SMOKE:   { id: 20, name: '연기', color: [100, 100, 100, 150], state: 'gas', weight: -1, conduct: 24, defaultLife: 100 }, // 수명 100틱
-    ASH:     { id: 21, name: '재(Ash)', color: [90, 90, 90, 255], state: 'powder', weight: 80, conduct: 24 },
-    LAVA:    { id: 22, name: '용암', color: [255, 100, 0, 255], state: 'liquid', weight: 95, conduct: 255, dispersion: 1, lowTemp: 1000, lowTransition: 26 }, // 식으면 암석(STONE)이 됨. 점성 매우 높음
-    GLASS:   { id: 23, name: '유리', color: [200, 200, 200, 100], state: 'solid', weight: 100, conduct: 20, highTemp: 1700, highTransition: 22 },
-    INSULATOR:{id: 24, name: '단열벽', color: [100, 100, 150, 255], state: 'solid', weight: 100, conduct: 0 }, // 열을 완벽히 차단
-    CARBON:  { id: 25, name: '카본(순수 탄소)', color: [15, 15, 15, 255], state: 'powder', weight: 95, conduct: 50 }, // 석탄보다 타기 어렵고 열전도도가 약간 높음 (흑연/카본블랙 모사)
-    STONE:   { id: 26, name: '암석', color: [136, 140, 141, 255], state: 'solid', weight: 100, conduct: 50, highTemp: 1200, highTransition: 22 } // 다시 녹으면 용암
+    ICE:     { id: 19, name: '얼음', color: [200, 200, 255, 255], state: 'powder', weight: 25, conduct: 118, heatCapacity: 2.09, highTemp: 0, highTransition: 3 },
+    SMOKE:   { id: 20, name: '연기', color: [100, 100, 100, 150], state: 'gas', weight: -1, conduct: 24, heatCapacity: 1.0, defaultLife: 100 },
+    ASH:     { id: 21, name: '재(Ash)', color: [90, 90, 90, 255], state: 'powder', weight: 80, conduct: 24, heatCapacity: 0.8 },
+    LAVA:    { id: 22, name: '용암', color: [255, 100, 0, 255], state: 'liquid', weight: 95, conduct: 255, heatCapacity: 1.6, dispersion: 1, lowTemp: 1000, lowTransition: 26 },
+    GLASS:   { id: 23, name: '유리', color: [200, 200, 200, 100], state: 'solid', weight: 100, conduct: 20, heatCapacity: 0.84, highTemp: 1700, highTransition: 22 },
+    INSULATOR:{id: 24, name: '단열벽', color: [100, 100, 150, 255], state: 'solid', weight: 100, conduct: 0, heatCapacity: 1.0 },
+    CARBON:  { id: 25, name: '카본(순수 탄소)', color: [15, 15, 15, 255], state: 'powder', weight: 95, conduct: 50, heatCapacity: 0.71 },
+    STONE:   { id: 26, name: '암석', color: [136, 140, 141, 255], state: 'solid', weight: 100, conduct: 50, heatCapacity: 0.84, highTemp: 1200, highTransition: 22 }
 };
 
 const EL_LIST = Object.values(ELEMENTS).sort((a, b) => a.id - b.id);
@@ -308,11 +308,23 @@ let nextPres = new Float32Array(width * height).fill(0.0);
 let nextTemp = new Float32Array(width * height).fill(22.0);
 
 // TPT의 유체 역학 상수
-const AIR_VLOSS = 0.99;    // 속도 감쇠 (마찰)
-const AIR_PLOSS = 0.999;   // 압력 감쇠 (밀폐 공간 보존을 위해 높게 설정)
+const AIR_VLOSS = 0.999;   // 속도 감쇠 (마찰) - ref SimulationConfig.h:40
+const AIR_PLOSS = 0.9999;  // 압력 감쇠 - ref SimulationConfig.h:41
 const AIR_VADV = 0.3;      // 이류(Advection) 강도
 const AIR_TSTEPV = 0.4;    // 압력 -> 속도 변환 계수
 const AIR_TSTEPP = 0.3;    // 속도 -> 압력 변환 계수
+
+// Precomputed Gaussian kernel (ref Air.cpp:8-26) exp(-2*(i*i+j*j)) normalized
+const GAUSS_KERNEL = [];
+let gaussSum = 0;
+for (let j = -1; j <= 1; j++) {
+    for (let k = -1; k <= 1; k++) {
+        const w = Math.exp(-2 * (j * j + k * k));
+        GAUSS_KERNEL.push(w);
+        gaussSum += w;
+    }
+}
+for (let n = 0; n < GAUSS_KERNEL.length; n++) GAUSS_KERNEL[n] /= gaussSum;
 
 function updateAirAndHeat() {
     // 1. 벽면/가장자리 마찰 및 고체 통과 불가 처리
@@ -321,7 +333,19 @@ function updateAirAndHeat() {
             const i = y * width + x;
             const el = EL_LIST[grid[i]];
             if (el.state === 'solid' && pipeGrid[i] === -1) {
-                velX[i] = 0; velY[i] = 0; presGrid[i] = 0;
+                velX[i] = 0; velY[i] = 0; // ref: only zero velocity at walls, not pressure
+            }
+        }
+    }
+
+    // 1.5. Edge damping (ref Air.cpp:224-253) - damp pressure/velocity at boundaries
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = y * width + x;
+            if (x < 2 || x >= width - 2 || y < 2 || y >= height - 2) {
+                presGrid[i] *= 0.8;
+                velX[i] *= 0.9;
+                velY[i] *= 0.9;
             }
         }
     }
@@ -331,7 +355,7 @@ function updateAirAndHeat() {
         for (let x = 1; x < width - 1; x++) {
             const i = y * width + x;
             let dp = (velX[i - 1] - velX[i + 1]) + (velY[i - width] - velY[i + width]);
-            presGrid[i] = (presGrid[i] * AIR_PLOSS) + (dp * AIR_TSTEPP);
+            presGrid[i] = (presGrid[i] * AIR_PLOSS) + (dp * AIR_TSTEPP * 0.5);
         }
     }
 
@@ -342,8 +366,8 @@ function updateAirAndHeat() {
             let dx = presGrid[i - 1] - presGrid[i + 1];
             let dy = presGrid[i - width] - presGrid[i + width];
             
-            velX[i] = (velX[i] * AIR_VLOSS) + (dx * AIR_TSTEPV);
-            velY[i] = (velY[i] * AIR_VLOSS) + (dy * AIR_TSTEPV);
+            velX[i] = (velX[i] * AIR_VLOSS) + (dx * AIR_TSTEPV * 0.5);
+            velY[i] = (velY[i] * AIR_VLOSS) + (dy * AIR_TSTEPV * 0.5);
         }
     }
 
@@ -353,13 +377,14 @@ function updateAirAndHeat() {
             const i = y * width + x;
             const el = EL_LIST[grid[i]];
             
-            // 단순 3x3 커널 스무딩
+            // 3x3 Gaussian kernel smoothing (ref Air.cpp:8-26)
             let dx = 0, dy = 0, dp = 0;
             let wSum = 0;
+            let ki = 0;
             for (let j = -1; j <= 1; j++) {
                 for (let k = -1; k <= 1; k++) {
                     const ni = (y + j) * width + (x + k);
-                    const weight = (j===0 && k===0) ? 4 : (j===0 || k===0) ? 2 : 1;
+                    const weight = GAUSS_KERNEL[ki++];
                     if (EL_LIST[grid[ni]] && EL_LIST[grid[ni]].state !== 'solid') {
                         dx += velX[ni] * weight;
                         dy += velY[ni] * weight;
@@ -376,15 +401,15 @@ function updateAirAndHeat() {
 
             // 이류
             if (el.state !== 'solid') {
-                let tx = x - dx * 0.8; 
-                let ty = y - dy * 0.8;
-                
+                let tx = x - dx * 0.7;
+                let ty = y - dy * 0.7;
+
                 if (tx >= 1 && tx < width - 2 && ty >= 1 && ty < height - 2) {
                     let px = Math.floor(tx);
                     let py = Math.floor(ty);
                     let fx = tx - px;
                     let fy = ty - py;
-                    
+
                     let idx00 = py * width + px;
                     let idx10 = py * width + px + 1;
                     let idx01 = (py + 1) * width + px;
@@ -405,9 +430,9 @@ function updateAirAndHeat() {
 
             if (el.state === 'gas') dp += (tempGrid[i] - 22) * 0.00005;
 
-            nextVelX[i] = Math.max(-10, Math.min(10, dx));
-            nextVelY[i] = Math.max(-10, Math.min(10, dy));
-            nextPres[i] = Math.max(-10, Math.min(10, dp));
+            nextVelX[i] = Math.max(-256, Math.min(256, dx));
+            nextVelY[i] = Math.max(-256, Math.min(256, dy));
+            nextPres[i] = Math.max(-256, Math.min(256, dp));
         }
     }
 
@@ -423,8 +448,8 @@ function updateAirAndHeat() {
             if (el.state !== 'solid') {
                 let dx = nextVelX[i];
                 let dy = nextVelY[i];
-                let tx = x - dx * 0.8; 
-                let ty = y - dy * 0.8;
+                let tx = x - dx * 0.7;
+                let ty = y - dy * 0.7;
                 
                 if (tx >= 1 && tx < width - 2 && ty >= 1 && ty < height - 2) {
                     let px = Math.floor(tx);
@@ -444,23 +469,24 @@ function updateAirAndHeat() {
                 }
             }
 
-            // 입자 간 열 전도 (Particle-to-Particle Heat Conduction)
-            const conduct = el.conduct / 255.0;
-            if (conduct > 0) {
-                let heatTransfer = 0;
-                for (let ni of [i-1, i+1, i-width, i+width]) {
+            // 입자 간 열 전도 (ref Simulation.cpp:2434-2489) - 8 neighbors with heatCapacity
+            const conduct = el.conduct;
+            if (conduct > 0 && Math.random() < conduct / 250.0) {
+                const myHC = el.heatCapacity || 1.0;
+                let sumTempHC = currentTemp * myHC;
+                let sumHC = myHC;
+                for (let ni of [i-1, i+1, i-width, i+width, i-width-1, i-width+1, i+width-1, i+width+1]) {
+                    if (ni < 0 || ni >= width * height) continue;
                     const nEl = EL_LIST[grid[ni]];
-                    if (nEl) {
-                        const nConduct = nEl.conduct / 255.0;
-                        if (nConduct > 0) {
-                            // TPT의 열전도 수식 기반
-                            const factor = (conduct + nConduct) * 0.5 * 0.1;
-                            const diff = tempGrid[ni] - currentTemp;
-                            heatTransfer += diff * factor;
-                        }
+                    if (nEl && nEl.conduct > 0) {
+                        const nHC = nEl.heatCapacity || 1.0;
+                        sumTempHC += tempGrid[ni] * nHC;
+                        sumHC += nHC;
                     }
                 }
-                currentTemp += heatTransfer;
+                if (sumHC > myHC) {
+                    currentTemp = sumTempHC / sumHC;
+                }
             }
 
             // 가스의 자연 냉각 (Ambient cooling) - 전역 설정(단열계 모드) 연동
