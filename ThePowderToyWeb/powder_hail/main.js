@@ -121,7 +121,7 @@ const REACTIONS = [
         products: [25, 11], // CARBON(순수 탄소), H2
         productRatio: [1, 2],
         enthalpy: -75, // 흡열 (실제 ΔH_r = +74.8 kJ/mol)
-        activationTemp: 1000, // 촉매 없이 매우 높은 온도 필요
+        activationTemp: 800, // 촉매 없이 높은 온도 필요
         active: false // 기본적으로 비활성화
     }
 ];

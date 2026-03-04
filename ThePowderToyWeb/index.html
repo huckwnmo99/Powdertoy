@@ -115,6 +115,8 @@ e.property_set_func(c1, function(i,x,y,s,n)
               if hasNi or math.random()<0.02 then
                 sim.partProperty(i,"type",c2)
                 sim.partProperty(rid,"type",c3)
+                sim.partCreate(-1,x+math.random(-1,1),y+math.random(-1,1),c3)
+                sim.partCreate(-1,x+math.random(-1,1),y+math.random(-1,1),c3)
                 sim.partProperty(i,"temp",t-100)
                 return
               end

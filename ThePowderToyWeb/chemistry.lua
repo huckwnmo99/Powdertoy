@@ -86,6 +86,8 @@ local function update_ch4(i, x, y, s, n)
                             if hasNi or math.random() < 0.02 then
                                 sim.partProperty(i, "type", CO)
                                 sim.partProperty(rid, "type", H2)
+                                sim.partCreate(-1, x + math.random(-1, 1), y + math.random(-1, 1), H2)
+                                sim.partCreate(-1, x + math.random(-1, 1), y + math.random(-1, 1), H2)
                                 sim.partProperty(i, "temp", temp - 100)
                                 return
                             end
